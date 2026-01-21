@@ -90,7 +90,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
 
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt,ENNEMY *ennemy_list)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite)
 {
     player->x += player->vx * dt;
 
@@ -105,9 +105,28 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt,ENNEMY
         if (bullet->y + bullet->h < 0)
             *bullet_active = false;
     }
-    for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+
+    // Déplacer les ennemis
+    if (*droite) {
+        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        {
+            ennemy_list[i].x += ENNEMY_SPEED_X*dt;
+        }
+        // Vérifier si l'ennemi le plus à droite touche le bord droit
+        if (ennemy_list[NUMBER_ENNEMY_X-1].x + ennemy_list[NUMBER_ENNEMY_X-1].w >= SCREEN_WIDTH) {
+            *droite = false;
+        }
+    }
+    else 
     {
-        ennemy_list[i].x += 
+        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        {
+            ennemy_list[i].x -= ENNEMY_SPEED_X*dt;
+        }
+        // Vérifier si l'ennemi le plus à gauche touche le bord gauche
+        if (ennemy_list[0].x <= 0) {
+            *droite = true;
+        }
     }
 }
 
