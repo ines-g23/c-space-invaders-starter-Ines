@@ -1,7 +1,8 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
-#include "entity.h"
-#include "game.h"
+#include "../include/entity.h"
+#include "../include/game.h"
+
 
 int main(void)
 {
@@ -24,8 +25,17 @@ int main(void)
         .vx = 0,
         .vy = 0};
 
-    Entity bullet = {0};
+    Entity bullet = {
+        .x = player.x + player.w / 2 - BULLET_WIDTH / 2,
+        .y = player.y,
+        .w = BULLET_WIDTH,
+        .h = BULLET_HEIGHT,
+        .vy = -BULLET_SPEED,
+    };
+
     bool bullet_active = false;
+
+    ENNEMY *ennemy_list = create_all_ennemy();
 
     while (running)
     {
@@ -39,7 +49,7 @@ int main(void)
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
         update(&player, &bullet, &bullet_active, dt);
-        render(renderer, &player, &bullet, bullet_active);
+        render(renderer, &player, &bullet, bullet_active, ennemy_list);
     }
 
     cleanup(window, renderer);

@@ -1,6 +1,39 @@
 #include <SDL2/SDL.h>
 #include "game.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define SIZE 100
+
+void define_y0_ennemy (int y_ennemy[]) {
+  for (int i = 0; i < NUMBER_ENNEMY_X; i++) {
+    y_ennemy[i]= rand() % (SCREEN_WIDTH-ENNEMY_WIDTH);
+  }
+}
+
+ENNEMY *create_all_ennemy(){
+    ENNEMY *ennemy_list = malloc(NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y*sizeof(ENNEMY));
+    if (ennemy_list == NULL) {
+        fprintf(stderr, "Erreur d'allocation mémoire\n");
+        return NULL;
+    }
+    // Initialiser le tableau
+    for (size_t i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++) {
+        ennemy_list[i].x = 40 + i*(SCREEN_WIDTH-80)/NUMBER_ENNEMY_X;
+        ennemy_list[i].y =  20 + i*(SCREEN_WIDTH/2 -50)/NUMBER_ENNEMY_Y;
+        ennemy_list[i].h = ENNEMY_HEIGHT;
+        ennemy_list[i].w = ENNEMY_WIDTH;
+        ennemy_list[i].vx = ENNEMY_SPEED_X;
+        ennemy_list[i].vy = ENNEMY_SPEED_Y;
+        ennemy_list[i].exist = 1;
+    }
+    return ennemy_list;
+}
+
+
+
+//créer free(ennemy_list)
 
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -55,6 +88,8 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
         bullet->h = BULLET_HEIGHT;
         bullet->vy = -BULLET_SPEED;
     }
+
+
 }
 
 void update(Entity *player, Entity *bullet, bool *bullet_active, float dt)
@@ -74,7 +109,7 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt)
     }
 }
 
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -93,6 +128,16 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &bullet_rect);
     }
+
+    for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+    {
+        SDL_Rect ENNEMY = {
+            (int)ennemy_list[i].x, (int)ennemy_list[i].y,
+            ennemy_list[i].w, ennemy_list[i].h};
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &ENNEMY);
+    }
+
 
     SDL_RenderPresent(renderer);
 }
