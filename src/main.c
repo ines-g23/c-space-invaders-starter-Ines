@@ -52,6 +52,7 @@ int main(void)
         render(renderer, &player, &bullet, bullet_active, ennemy_list);
     }
 
+    free_ennemy(ennemy_list);
     cleanup(window, renderer);
     return 0;
 }
