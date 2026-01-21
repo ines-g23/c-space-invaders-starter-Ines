@@ -22,7 +22,7 @@ ENNEMY *create_all_ennemy(){
             ennemy_list[idx].w = ENNEMY_WIDTH;
             ennemy_list[idx].vx = ENNEMY_SPEED_X;
             ennemy_list[idx].vy = ENNEMY_SPEED_Y;
-            ennemy_list[idx].exist = 1;
+            ennemy_list[idx].exist = true;
         }
     }
     return ennemy_list;
@@ -32,6 +32,41 @@ void free_ennemy(ENNEMY *ennemy_list) {
     free(ennemy_list);
 }
 
+void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active){
+    if (*bullet_active){
+        bool deja_collision = false;
+        int i = NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y - 1;
+        while ((!deja_collision)&& (i >= 0)){
+            if ((ennemy_list[i].exist) &&(ennemy_list[i].x <= bullet->x)&&(bullet->x <= (ennemy_list[i].x+ENNEMY_WIDTH))&& (ennemy_list[i].y <= bullet->y)&&(bullet->y <= (ennemy_list[i].y+ENNEMY_HEIGHT)))
+            {
+                ennemy_list[i].exist = false;
+                deja_collision = true;
+                *bullet_active = false;
+            }
+            i -= 1;
+        }
+        
+    }
+}
+
+void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie)
+{
+    if (!(*partie_finie))
+    {
+        bool il_existe_ennemi = false;
+        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        {
+            if ((ennemy_list[i].exist)&&((ennemy_list[i].y + ENNEMY_HEIGHT + 10) > SCREEN_HEIGHT)){
+                il_existe_ennemi = true;
+                *partie_finie = true;
+            }
+                
+        }
+        if (!il_existe_ennemi)
+            *partie_finie = true;
+    }
+
+}
 
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -90,7 +125,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
 
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie)
 {
     player->x += player->vx * dt;
 
@@ -145,10 +180,12 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
             ennemy_list[i].y += ENNEMY_SPEED_Y;
         }
     }
-    
+    //gestion de la collision
+    gestion_collision(ennemy_list, bullet, bullet_active);
+    fin_de_partie(ennemy_list, partie_finie);
 }
 
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool *partie_finie)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -159,7 +196,7 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
     SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
     SDL_RenderFillRect(renderer, &player_rect);
 
-    if (bullet_active)
+    if ((bullet_active)&&(!partie_finie))
     {
         SDL_Rect bullet_rect = {
             (int)bullet->x, (int)bullet->y,
@@ -167,14 +204,17 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &bullet_rect);
     }
-
+    if (!partie_finie){
     for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
     {
-        SDL_Rect ENNEMY = {
+        if (ennemy_list[i].exist){
+            SDL_Rect ENNEMY = {
             (int)ennemy_list[i].x, (int)ennemy_list[i].y,
             ennemy_list[i].w, ennemy_list[i].h};
-        SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-        SDL_RenderFillRect(renderer, &ENNEMY);
+            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+            SDL_RenderFillRect(renderer, &ENNEMY);
+        }
+    }
     }
 
 

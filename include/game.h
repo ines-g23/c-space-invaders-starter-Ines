@@ -26,10 +26,12 @@
 
 bool init(SDL_Window **window, SDL_Renderer **renderer);
 void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active);
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente);
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list);
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie);
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool *partie_finie);
 ENNEMY *create_all_ennemy();
 void free_ennemy(ENNEMY *ennemy_list);
 void cleanup(SDL_Window *window, SDL_Renderer *renderer);
+void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active);
+void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie);
 
 #endif

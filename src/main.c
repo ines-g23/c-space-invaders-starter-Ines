@@ -38,6 +38,7 @@ int main(void)
     ENNEMY *ennemy_list = create_all_ennemy();
     bool droite = true;
     bool descente = false;
+    bool partie_finie = false;
 
     while (running)
     {
@@ -50,8 +51,8 @@ int main(void)
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente);
-        render(renderer, &player, &bullet, bullet_active, ennemy_list);
+        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie);
+        render(renderer, &player, &bullet, bullet_active, ennemy_list, &partie_finie);
     }
 
     free_ennemy(ennemy_list);
