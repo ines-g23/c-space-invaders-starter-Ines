@@ -90,7 +90,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
 
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente)
 {
     player->x += player->vx * dt;
 
@@ -106,7 +106,7 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
             *bullet_active = false;
     }
 
-    // Déplacer les ennemis
+    // Déplacer les ennemis de gauche à droite
     if (*droite) {
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
@@ -115,6 +115,11 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
         // Vérifier si l'ennemi le plus à droite touche le bord droit
         if (ennemy_list[NUMBER_ENNEMY_X-1].x + ennemy_list[NUMBER_ENNEMY_X-1].w >= SCREEN_WIDTH) {
             *droite = false;
+            *descente = true;
+        }
+        else 
+        {
+            *descente = false;
         }
     }
     else 
@@ -126,8 +131,21 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
         // Vérifier si l'ennemi le plus à gauche touche le bord gauche
         if (ennemy_list[0].x <= 0) {
             *droite = true;
+            *descente = true;
+        }
+        else 
+        {
+            *descente = false;
         }
     }
+    //Déplacer les ennemis vers le bas
+    if (*descente){
+        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        {
+            ennemy_list[i].y += ENNEMY_SPEED_Y;
+        }
+    }
+    
 }
 
 void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list)
