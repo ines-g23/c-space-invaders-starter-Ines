@@ -131,8 +131,8 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     if (keys[SDL_SCANCODE_SPACE] && !*bullet_active)
     {
         *bullet_active = true;
-        bullet->x = ennemy_list[0].x + ennemy_list[0].w / 2 - ENNEMY_WIDTH / 2;
-        bullet->y = ennemy_list[0].y;
+        bullet->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
+        bullet->y = player->y;
         bullet->w = BULLET_WIDTH;
         bullet->h = BULLET_HEIGHT;
         bullet->vy = -BULLET_SPEED;
@@ -140,8 +140,8 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     if (keys[SDL_SCANCODE_T] && !*tir_ennemi_active)
     {
         *tir_ennemi_active = true;
-        tir_ennemi->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
-        tir_ennemi->y = player->y;
+        tir_ennemi->x = ennemy_list[0].x + ennemy_list[0].w / 2 - ENNEMY_WIDTH / 2;
+        tir_ennemi->y = ennemy_list[0].y;
         tir_ennemi->w = TIR_ENNEMI_WIDTH;
         tir_ennemi->h = TIR_ENNEMI_HEIGHT;
         tir_ennemi->vy = TIR_ENNEMI_SPEED;
