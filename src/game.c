@@ -58,7 +58,7 @@ void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active
     }
 }
 
-void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee)
+void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee, Entity *player)
 {
     if (!(*partie_finie))
     {
@@ -79,6 +79,10 @@ void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee)
         if (!il_existe_ennemi){
             *partie_finie = true;
             *partie_gagnee = true;
+        }
+        if(player->vie == 0){
+            *partie_finie = true;
+            *partie_gagnee = false;
         }
     }
 
@@ -210,7 +214,7 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     }
     //gestion de la collision
     gestion_collision(ennemy_list, bullet, bullet_active);
-    fin_de_partie(ennemy_list, partie_finie, partie_gagnee);
+    fin_de_partie(ennemy_list, partie_finie, partie_gagnee, player);
     gestion_vie(player, tir_ennemi, tir_ennemi_active);
 }
     
@@ -224,6 +228,14 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         player->w, player->h};
         SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         SDL_RenderFillRect(renderer, &player_rect);
+
+        for (int i = 0; i < player->vie; i++){
+            SDL_Rect player_rect = {
+            SCREEN_WIDTH - (15 + i*30), 15,
+            COEUR_WIDTH, COEUR_HEIGHT};
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &player_rect);
+        }
 
         if (bullet_active)
         {

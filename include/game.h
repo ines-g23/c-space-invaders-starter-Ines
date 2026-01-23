@@ -29,6 +29,10 @@
 #define TIR_ENNEMI_WIDTH 10
 #define TIR_ENNEMI_HEIGHT 20
 
+#define COEUR_WIDTH 15
+#define COEUR_HEIGHT 15
+
+
 
 bool init(SDL_Window **window, SDL_Renderer **renderer);
 void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active, ENNEMY *ennemy_list, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active);
@@ -38,7 +42,7 @@ ENNEMY *create_all_ennemy();
 void free_ennemy(ENNEMY *ennemy_list);
 void cleanup(SDL_Window *window, SDL_Renderer *renderer);
 void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active);
-void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee);
+void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee, Entity *player);
 void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active);
 
 
