@@ -49,21 +49,28 @@ void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active)
     }
 }
 
-void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie)
+void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee)
 {
     if (!(*partie_finie))
     {
         bool il_existe_ennemi = false;
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
-            if ((ennemy_list[i].exist)&&((ennemy_list[i].y + ENNEMY_HEIGHT + 10) > SCREEN_HEIGHT)){
-                il_existe_ennemi = true;
+            // Si un ennemi a atteint le bas de l'écran, la partie est terminée
+            if ((ennemy_list[i].exist) && ((ennemy_list[i].y + ENNEMY_HEIGHT) > SCREEN_HEIGHT)){
                 *partie_finie = true;
+                return;
             }
-                
-        }
-        if (!il_existe_ennemi)
+            // Compter les ennemis qui existent encore
+            if (ennemy_list[i].exist){
+                il_existe_ennemi = true;
+            }
+        }  
+        // Si aucun ennemi n'existe, la partie est terminée (victoire)
+        if (!il_existe_ennemi){
             *partie_finie = true;
+            *partie_gagnee = true;
+        }
     }
 
 }
@@ -124,8 +131,8 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
 
 
 }
-
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie)
+  
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee)
 {
     player->x += player->vx * dt;
 
@@ -182,41 +189,55 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     }
     //gestion de la collision
     gestion_collision(ennemy_list, bullet, bullet_active);
-    fin_de_partie(ennemy_list, partie_finie);
+    fin_de_partie(ennemy_list, partie_finie, partie_gagnee);
 }
-
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool *partie_finie)
+    
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagne)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-
-    SDL_Rect player_rect = {
+    if (!partie_finie){
+        SDL_Rect player_rect = {
         (int)player->x, (int)player->y,
         player->w, player->h};
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
-    SDL_RenderFillRect(renderer, &player_rect);
+        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(renderer, &player_rect);
 
-    if ((bullet_active)&&(!partie_finie))
-    {
-        SDL_Rect bullet_rect = {
-            (int)bullet->x, (int)bullet->y,
-            bullet->w, bullet->h};
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillRect(renderer, &bullet_rect);
-    }
-    if (!partie_finie){
-    for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
-    {
-        if (ennemy_list[i].exist){
-            SDL_Rect ENNEMY = {
-            (int)ennemy_list[i].x, (int)ennemy_list[i].y,
-            ennemy_list[i].w, ennemy_list[i].h};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
-            SDL_RenderFillRect(renderer, &ENNEMY);
+        if (bullet_active)
+        {
+            SDL_Rect bullet_rect = {
+                (int)bullet->x, (int)bullet->y,
+                bullet->w, bullet->h};
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_RenderFillRect(renderer, &bullet_rect);
         }
-    }
-    }
 
+        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        {  
+            if (ennemy_list[i].exist){
+                SDL_Rect ENNEMY = {
+            (int)ennemy_list[i].x, (int)ennemy_list[i].y,
+                ennemy_list[i].w, ennemy_list[i].h};
+                SDL_SetRenderDrawColor(renderer, 255, 0, 255, 255);
+                SDL_RenderFillRect(renderer, &ENNEMY);
+            }
+        } 
+    }
+    
+
+    if (partie_finie){
+        SDL_Rect fin_partie_rect = {
+            SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 25,
+            100, 50};
+        if (partie_gagne){
+            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        }
+        else{
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        }
+        
+        SDL_RenderFillRect(renderer, &fin_partie_rect);
+    }
 
     SDL_RenderPresent(renderer);
 }
