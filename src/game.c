@@ -49,6 +49,15 @@ void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active)
     }
 }
 
+void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active){
+    if (*tir_ennemi_active){
+        if ((player->x <= tir_ennemi->x)&&(tir_ennemi->x <= (player->x + PLAYER_WIDTH))&& (player->y <= tir_ennemi->y)&&(tir_ennemi->y <= (player->y+ PLAYER_WIDTH)))
+        {
+            player->vie -= 1;
+        }
+    }
+}
+
 void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee)
 {
     if (!(*partie_finie))
@@ -104,7 +113,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active)
+void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active, ENNEMY *ennemy_list, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -122,17 +131,24 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     if (keys[SDL_SCANCODE_SPACE] && !*bullet_active)
     {
         *bullet_active = true;
-        bullet->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
-        bullet->y = player->y;
+        bullet->x = ennemy_list[0].x + ennemy_list[0].w / 2 - ENNEMY_WIDTH / 2;
+        bullet->y = ennemy_list[0].y;
         bullet->w = BULLET_WIDTH;
         bullet->h = BULLET_HEIGHT;
         bullet->vy = -BULLET_SPEED;
     }
-
-
+    if (keys[SDL_SCANCODE_T] && !*tir_ennemi_active)
+    {
+        *tir_ennemi_active = true;
+        tir_ennemi->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
+        tir_ennemi->y = player->y;
+        tir_ennemi->w = TIR_ENNEMI_WIDTH;
+        tir_ennemi->h = TIR_ENNEMI_HEIGHT;
+        tir_ennemi->vy = TIR_ENNEMI_SPEED;
+    }
 }
   
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active)
 {
     player->x += player->vx * dt;
 
@@ -147,7 +163,12 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
         if (bullet->y + bullet->h < 0)
             *bullet_active = false;
     }
-
+    if (*tir_ennemi_active)
+    {
+        tir_ennemi->y += tir_ennemi->vy * dt;
+        if (tir_ennemi->y + tir_ennemi->h > SCREEN_HEIGHT)
+            *tir_ennemi_active = false;
+    }
     // Déplacer les ennemis de gauche à droite
     if (*droite) {
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
@@ -190,9 +211,10 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     //gestion de la collision
     gestion_collision(ennemy_list, bullet, bullet_active);
     fin_de_partie(ennemy_list, partie_finie, partie_gagnee);
+    gestion_vie(player, tir_ennemi, tir_ennemi_active);
 }
     
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagne)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -210,6 +232,14 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
                 bullet->w, bullet->h};
             SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL_RenderFillRect(renderer, &bullet_rect);
+        }
+        if (tir_ennemi_active)
+        {
+            SDL_Rect tir_ennemi_rect = {
+                (int)tir_ennemi->x, (int)tir_ennemi->y,
+                tir_ennemi->w, tir_ennemi->h};
+            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 125);
+            SDL_RenderFillRect(renderer, &tir_ennemi_rect);
         }
 
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
@@ -229,7 +259,7 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         SDL_Rect fin_partie_rect = {
             SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 25,
             100, 50};
-        if (partie_gagne){
+        if (partie_gagnee){
             SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
         }
         else{

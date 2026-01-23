@@ -23,7 +23,9 @@ int main(void)
         .w = PLAYER_WIDTH,
         .h = PLAYER_HEIGHT,
         .vx = 0,
-        .vy = 0};
+        .vy = 0,
+        .vie = PLAYER_LIFE,
+    };
 
     Entity bullet = {
         .x = player.x + player.w / 2 - BULLET_WIDTH / 2,
@@ -41,6 +43,16 @@ int main(void)
     bool partie_finie = false;
     bool partie_gagnee = false;
 
+    TIR_ENNEMI tir_ennemi = {
+        .x = 0,
+        .y = 0,
+        .h = 10,
+        .w = 5,
+        .vy = TIR_ENNEMI_SPEED,
+    };
+
+    bool tir_ennemi_active = false;
+
     while (running)
     {
         Uint32 ticks = SDL_GetTicks();
@@ -51,9 +63,9 @@ int main(void)
 
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee);
-        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee);
+        handle_input(&running, keys, &player, &bullet, &bullet_active, ennemy_list, &tir_ennemi, &tir_ennemi_active);
+        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active);
+        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active);
     }
 
     free_ennemy(ennemy_list);
