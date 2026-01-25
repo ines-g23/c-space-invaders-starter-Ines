@@ -54,6 +54,7 @@ void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active
         if ((player->x <= tir_ennemi->x)&&(tir_ennemi->x <= (player->x + PLAYER_WIDTH))&& (player->y <= tir_ennemi->y)&&(tir_ennemi->y <= (player->y+ PLAYER_WIDTH)))
         {
             player->vie -= 1;
+            *tir_ennemi_active = false;
         }
     }
 }
