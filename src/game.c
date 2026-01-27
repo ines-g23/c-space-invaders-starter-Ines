@@ -213,7 +213,7 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     if (*droite) {
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
-            ennemy_list[i].x += ENNEMY_SPEED_X*dt;
+            ennemy_list[i].x += (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
         }
         // Vérifier si l'ennemi le plus à droite touche le bord droit
         if (ennemy_list[NUMBER_ENNEMY_X-1].x + ennemy_list[NUMBER_ENNEMY_X-1].w >= SCREEN_WIDTH) {
@@ -229,11 +229,11 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     {
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
-            ennemy_list[i].x -= ENNEMY_SPEED_X*dt;
+            ennemy_list[i].x -= (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
         }
         // Vérifier si l'ennemi le plus à gauche touche le bord gauche
         if (ennemy_list[0].x <= 0) {
-            *droite = true;
+            *droite = true; 
             *descente = true;
         }
         else 
@@ -259,12 +259,11 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    
-    // Afficher le texte "Bonjour"
+
     SDL_Color white = {255, 255, 255, 255};
     
-    // Afficher une image en haut à droite (100x100 pixels)
-    render_image(renderer, "image.png", SCREEN_WIDTH - 120, 20, 100, 100);
+    const char *image = "coeur.png";
+    
     
     if (!partie_finie){
         SDL_Rect player_rect = {
@@ -274,11 +273,12 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         SDL_RenderFillRect(renderer, &player_rect);
 
         for (int i = 0; i < player->vie; i++){
-            SDL_Rect player_rect = {
+            /*SDL_Rect player_rect = {
             SCREEN_WIDTH - (15 + i*30), 15,
             COEUR_WIDTH, COEUR_HEIGHT};
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(renderer, &player_rect);
+            SDL_RenderFillRect(renderer, &player_rect);*/
+            render_image(renderer, image, SCREEN_WIDTH - (15 + i*30), 20, COEUR_WIDTH, COEUR_HEIGHT);
         }
 
         if (bullet_active)
