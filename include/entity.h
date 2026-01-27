@@ -14,7 +14,7 @@ typedef struct
     float x, y;
     float vx, vy;
     int w, h;
-    bool exist; 
+    int vie;
 } ENNEMY;
 
 typedef struct 
