@@ -24,4 +24,12 @@ typedef struct
     int w, h;
 } TIR_ENNEMI;
 
+typedef struct 
+{
+    float x, y;
+    float vy;
+    int w, h;
+    const char *path;
+} COEUR;
+
 #endif

@@ -47,8 +47,7 @@ void gestion_collision(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active)
                 *bullet_active = false;
             }
             i -= 1;
-        }
-        
+        } 
     }
 }
 
@@ -70,7 +69,7 @@ void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee,
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
             // Si un ennemi a atteint le bas de l'écran, la partie est terminée
-            if ((ennemy_list[i].exist) && ((ennemy_list[i].y + ENNEMY_HEIGHT) > SCREEN_HEIGHT)){
+            if ((ennemy_list[i].exist) && ((ennemy_list[i].y + ENNEMY_HEIGHT + 60) > SCREEN_HEIGHT)){
                 *partie_finie = true;
                 return;
             }
@@ -122,6 +121,36 @@ void gestion_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, ENNEMY 
         }
     }
 }
+
+void apparition_coeur(COEUR *coeur, bool *coeur_active)
+{
+    if (!*coeur_active){
+        int a = rand()%1000;
+        if (a < 1000*COEUR_PROBA)
+        {
+            *coeur_active = true;
+            coeur->x = rand()%(SCREEN_WIDTH-COEUR_WIDTH-15)+ 15;
+            coeur->y = 20;
+            coeur->w = COEUR_HEIGHT;
+            coeur->h = COEUR_HEIGHT;
+            coeur->vy = COEUR_SPEED;
+            coeur->path = "coeur.png";
+        }
+    }
+}
+
+void collision_coeur(COEUR *coeur, bool *coeur_active, Entity *player)
+{
+    if (*coeur_active){
+        if ((player->x <= coeur->x)&&(coeur->x <= (player->x+PLAYER_WIDTH))&& (player->y <= coeur->y)&&(coeur->y <= (player->y+PLAYER_HEIGHT)))
+        {
+            *coeur_active = false;
+            player->vie += 1;
+            if (player->vie > 3)
+                player->vie = 3;
+        }
+    }
+} 
 
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -188,7 +217,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     */
 }
   
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active)
 {
     player->x += player->vx * dt;
 
@@ -209,6 +238,14 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
         if (tir_ennemi->y + tir_ennemi->h > SCREEN_HEIGHT)
             *tir_ennemi_active = false;
     }
+
+    if (*coeur_active)
+    {
+        coeur->y += coeur->vy*dt;
+        if (coeur->y + coeur->h > SCREEN_HEIGHT)
+            *coeur_active = false;
+    }
+
     // Déplacer les ennemis de gauche à droite
     if (*droite) {
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
@@ -226,7 +263,7 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
         }
     }
     else 
-    {
+    { 
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
         {
             ennemy_list[i].x -= (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
@@ -253,16 +290,18 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     fin_de_partie(ennemy_list, partie_finie, partie_gagnee, player);
     gestion_vie(player, tir_ennemi, tir_ennemi_active);
     gestion_tir_ennemi(tir_ennemi, tir_ennemi_active, ennemy_list);
+    apparition_coeur(coeur, coeur_active);
+    collision_coeur(coeur, coeur_active, player);
 }
     
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active, COEUR *coeur, bool coeur_active)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
 
     SDL_Color white = {255, 255, 255, 255};
     
-    const char *image = "coeur.png";
+    const char *vie = "vie.png";
     
     
     if (!partie_finie){
@@ -275,10 +314,10 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         for (int i = 0; i < player->vie; i++){
             /*SDL_Rect player_rect = {
             SCREEN_WIDTH - (15 + i*30), 15,
-            COEUR_WIDTH, COEUR_HEIGHT};
+            VIE_WIDTH, VIE_HEIGHT};
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
             SDL_RenderFillRect(renderer, &player_rect);*/
-            render_image(renderer, image, SCREEN_WIDTH - (15 + i*30), 20, COEUR_WIDTH, COEUR_HEIGHT);
+            render_image(renderer, vie, SCREEN_WIDTH - (15 + i*30), 20, VIE_WIDTH, VIE_HEIGHT);
         }
 
         if (bullet_active)
@@ -296,6 +335,11 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
                 tir_ennemi->w, tir_ennemi->h};
             SDL_SetRenderDrawColor(renderer, 192, 192, 192, 125);
             SDL_RenderFillRect(renderer, &tir_ennemi_rect);
+        }
+        
+        if (coeur_active)
+        {
+            render_image(renderer, coeur->path, coeur->x, coeur->y, COEUR_WIDTH, COEUR_HEIGHT);
         }
 
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
