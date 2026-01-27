@@ -1,8 +1,11 @@
 #include <SDL2/SDL.h>
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 #include "game.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 #define SIZE 100
 
@@ -86,7 +89,38 @@ void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee,
             *partie_gagnee = false;
         }
     }
+}
 
+void gestion_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, ENNEMY *ennemy_list)
+{
+    if (!*tir_ennemi_active){
+        int a = rand()%1000;
+        if (a < 1000*TIR_ENNEMI_PROBA)
+        {
+            int colonne = rand()%NUMBER_ENNEMY_X;
+            int ligne_celui_qui_tire = -1;
+            // Chercher l'ennemi le plus bas (dernier vivant) dans cette colonne
+            for (int ligne = NUMBER_ENNEMY_Y - 1; ligne >= 0; ligne--)
+            {
+                int id = ligne * NUMBER_ENNEMY_X + colonne;
+                if (ennemy_list[id].exist)
+                {
+                    ligne_celui_qui_tire = ligne;
+                    break;
+                }
+            } 
+            if (ligne_celui_qui_tire >= 0)
+            {
+                int id = ligne_celui_qui_tire * NUMBER_ENNEMY_X + colonne;
+                *tir_ennemi_active = true;
+                tir_ennemi->x = ennemy_list[id].x + ennemy_list[id].w / 2;
+                tir_ennemi->y = ennemy_list[id].y;
+                tir_ennemi->w = TIR_ENNEMI_WIDTH;
+                tir_ennemi->h = TIR_ENNEMI_HEIGHT;
+                tir_ennemi->vy = TIR_ENNEMI_SPEED;
+            }
+        }
+    }
 }
 
 bool init(SDL_Window **window, SDL_Renderer **renderer)
@@ -118,7 +152,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active, ENNEMY *ennemy_list, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active)
+void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active)
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))
@@ -142,15 +176,16 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
         bullet->h = BULLET_HEIGHT;
         bullet->vy = -BULLET_SPEED;
     }
-    if (keys[SDL_SCANCODE_T] && !*tir_ennemi_active)
+    /*if (keys[SDL_SCANCODE_T] && !*tir_ennemi_active)
     {
         *tir_ennemi_active = true;
-        tir_ennemi->x = ennemy_list[0].x + ennemy_list[0].w / 2 - ENNEMY_WIDTH / 2;
+        tir_ennemi->x = ennemy_list[0].x + ennemy_list[0].w / 2;
         tir_ennemi->y = ennemy_list[0].y;
         tir_ennemi->w = TIR_ENNEMI_WIDTH;
         tir_ennemi->h = TIR_ENNEMI_HEIGHT;
         tir_ennemi->vy = TIR_ENNEMI_SPEED;
     }
+    */
 }
   
 void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active)
@@ -217,12 +252,20 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     gestion_collision(ennemy_list, bullet, bullet_active);
     fin_de_partie(ennemy_list, partie_finie, partie_gagnee, player);
     gestion_vie(player, tir_ennemi, tir_ennemi_active);
+    gestion_tir_ennemi(tir_ennemi, tir_ennemi_active, ennemy_list);
 }
     
 void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
+    
+    // Afficher le texte "Bonjour"
+    SDL_Color white = {255, 255, 255, 255};
+    
+    // Afficher une image en haut à droite (100x100 pixels)
+    render_image(renderer, "image.png", SCREEN_WIDTH - 120, 20, 100, 100);
+    
     if (!partie_finie){
         SDL_Rect player_rect = {
         (int)player->x, (int)player->y,
@@ -251,7 +294,7 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
             SDL_Rect tir_ennemi_rect = {
                 (int)tir_ennemi->x, (int)tir_ennemi->y,
                 tir_ennemi->w, tir_ennemi->h};
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 125);
+            SDL_SetRenderDrawColor(renderer, 192, 192, 192, 125);
             SDL_RenderFillRect(renderer, &tir_ennemi_rect);
         }
 
@@ -270,16 +313,20 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
 
     if (partie_finie){
         SDL_Rect fin_partie_rect = {
-            SCREEN_WIDTH/2 - 50, SCREEN_HEIGHT/2 - 25,
-            100, 50};
+            SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 25,
+            200, 50};
         if (partie_gagnee){
             SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            SDL_RenderFillRect(renderer, &fin_partie_rect);
+            render_text(renderer, "Tu as gagne", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 25, white);
         }
         else{
             SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_RenderFillRect(renderer, &fin_partie_rect);
+            render_text(renderer, "Tu as perdu", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 25, white);
         }
         
-        SDL_RenderFillRect(renderer, &fin_partie_rect);
+        
     }
 
     SDL_RenderPresent(renderer);
@@ -292,4 +339,65 @@ void cleanup(SDL_Window *window, SDL_Renderer *renderer)
     if (window)
         SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void render_text(SDL_Renderer *renderer, const char *text, int x, int y, SDL_Color color)
+{
+    TTF_Font *font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28);
+    if (!font)
+    {
+        SDL_Log("Erreur: impossible de charger la police: %s", TTF_GetError());
+        return;
+    }
+    
+    SDL_Surface *surface = TTF_RenderText_Blended(font, text, color);
+    if (!surface)
+    {
+        SDL_Log("Erreur: impossible de créer la surface de texte: %s", TTF_GetError());
+        TTF_CloseFont(font);
+        return;
+    }
+    
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture)
+    {
+        SDL_Log("Erreur: impossible de créer la texture: %s", SDL_GetError());
+        SDL_FreeSurface(surface);
+        TTF_CloseFont(font);
+        return;
+    }
+    
+    int text_width = surface->w;
+    int text_height = surface->h;
+    SDL_Rect rect = {x, y, text_width, text_height};
+    
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
+    TTF_CloseFont(font);
+}
+
+void render_image(SDL_Renderer *renderer, const char *image_path, int x, int y, int width, int height)
+{
+    SDL_Surface *surface = IMG_Load(image_path);
+    if (!surface)
+    {
+        SDL_Log("Erreur: impossible de charger l'image %s: %s", image_path, IMG_GetError());
+        return;
+    }
+    
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture)
+    {
+        SDL_Log("Erreur: impossible de créer la texture pour l'image: %s", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return;
+    }
+    
+    SDL_Rect rect = {x, y, width, height};
+    SDL_RenderCopy(renderer, texture, NULL, &rect);
+    
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }

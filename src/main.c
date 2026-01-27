@@ -1,8 +1,9 @@
 #include <SDL2/SDL.h>
+#include "SDL2/SDL_image.h"
+#include "SDL2/SDL_ttf.h"
 #include <stdbool.h>
 #include "../include/entity.h"
 #include "../include/game.h"
-
 
 int main(void)
 {
@@ -14,8 +15,15 @@ int main(void)
         return 1;
     }
 
+    // Initialisation de SDL_ttf
+    if (TTF_Init() == -1)
+    {
+        SDL_Log("Erreur d'initialisation de SDL_ttf: %s", TTF_GetError());
+        return 1;
+    }
+
     bool running = true;
-    Uint32 last_ticks = SDL_GetTicks();
+    Uint32 last_ticks = SDL_GetTicks();  
 
     Entity player = {
         .x = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2,
@@ -63,12 +71,13 @@ int main(void)
 
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active, ennemy_list, &tir_ennemi, &tir_ennemi_active);
+        handle_input(&running, keys, &player, &bullet, &bullet_active);
         update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active);
         render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active);
     }
 
     free_ennemy(ennemy_list);
     cleanup(window, renderer);
+    TTF_Quit();
     return 0;
 }
