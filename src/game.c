@@ -339,15 +339,10 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         SDL_Rect player_rect = {
         (int)player->x, (int)player->y,
         player->w, player->h};
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+        SDL_SetRenderDrawColor(renderer, 184, 134, 11, 255);
         SDL_RenderFillRect(renderer, &player_rect);
 
         for (int i = 0; i < player->vie; i++){
-            /*SDL_Rect player_rect = {
-            SCREEN_WIDTH - (15 + i*30), 15,
-            VIE_WIDTH, VIE_HEIGHT};
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-            SDL_RenderFillRect(renderer, &player_rect);*/
             render_image(renderer, vie, SCREEN_WIDTH - (15 + i*30), 20, VIE_WIDTH, VIE_HEIGHT);
         }
 
@@ -356,7 +351,7 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
             SDL_Rect bullet_rect = {
                 (int)bullet->x, (int)bullet->y,
                 bullet->w, bullet->h};
-            SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
             SDL_RenderFillRect(renderer, &bullet_rect);
         }
         if (tir_ennemi_active)
@@ -394,14 +389,14 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
             SCREEN_WIDTH/2 - 100, SCREEN_HEIGHT/2 - 25,
             200, 50};
         if (partie_gagnee){
-            SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+            SDL_SetRenderDrawColor(renderer, 50, 205, 50, 255);
             SDL_RenderFillRect(renderer, &fin_partie_rect);
-            render_text(renderer, "Tu as gagne", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 25, white);
+            render_text(renderer, "Tu as gagne !", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 15, white);
         }
         else{
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+            SDL_SetRenderDrawColor(renderer, 178, 34, 34, 255);
             SDL_RenderFillRect(renderer, &fin_partie_rect);
-            render_text(renderer, "Tu as perdu", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 25, white);
+            render_text(renderer, "Tu as perdu !", SCREEN_WIDTH/2 - 90, SCREEN_HEIGHT/2 - 15, white);
         }
         
         
