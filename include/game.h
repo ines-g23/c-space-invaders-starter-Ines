@@ -38,7 +38,7 @@
 #define COEUR_WIDTH 30
 #define COEUR_HEIGHT 27
 #define COEUR_SPEED 400.0f
-#define COEUR_PROBA 0.05
+#define COEUR_PROBA 0.0005
 
 
 bool init(SDL_Window **window, SDL_Renderer **renderer);
