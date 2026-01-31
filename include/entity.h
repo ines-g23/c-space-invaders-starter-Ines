@@ -32,4 +32,12 @@ typedef struct
     const char *path;
 } COEUR;
 
+typedef struct 
+{
+    float x, y;
+    int w, h;
+    int vie;
+} PROTECTION;
+
+
 #endif

@@ -181,7 +181,26 @@ void collision_coeur(COEUR *coeur, bool *coeur_active, Entity *player)
                 player->vie = 3;
         }
     }
-} 
+}
+
+PROTECTION *create_all_protection(){
+    PROTECTION *protection_list = malloc(NUMBER_PROTECTION*sizeof(PROTECTION));
+    if (protection_list == NULL) {
+        fprintf(stderr, "Erreur d'allocation mémoire\n");
+        return NULL;
+    }
+    // Initialiser le tableau en grille
+    for (int i = 0; i < NUMBER_PROTECTION; i++) {
+        protection_list[i].x = (i+1)*SCREEN_WIDTH/(NUMBER_PROTECTION+1) - (PROTECTION_WIDTH/2);
+        protection_list[i].y = (int) (SCREEN_HEIGHT*0.8);
+        protection_list[i].w = PROTECTION_WIDTH;
+        protection_list[i].h = PROTECTION_HEIGHT;
+        protection_list[i].vie = VIE_INITIALE_PROTECTION;
+    }
+    return protection_list;
+}
+
+        
 
 bool init(SDL_Window **window, SDL_Renderer **renderer)
 {
@@ -248,7 +267,7 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
     */
 }
   
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
 {
     player->x += player->vx * dt;
 
@@ -323,9 +342,10 @@ void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEM
     gestion_tir_ennemi(tir_ennemi, tir_ennemi_active, ennemy_list);
     apparition_coeur(coeur, coeur_active);
     collision_coeur(coeur, coeur_active, player);
+    //gestion_collision(tir_ennemi, tir_ennemi_active, protection_list)
 }
     
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active, COEUR *coeur, bool coeur_active)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active, COEUR *coeur, bool coeur_active, PROTECTION *protection_list)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -366,6 +386,21 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
         if (coeur_active)
         {
             render_image(renderer, coeur->path, coeur->x, coeur->y, COEUR_WIDTH, COEUR_HEIGHT);
+        }
+
+        for (int i = 0; i < NUMBER_PROTECTION; i++){
+            if (protection_list[i].vie > 0){
+                SDL_Rect PROTECTION = {
+            (int)protection_list[i].x, (int)protection_list[i].y,
+                protection_list[i].w, protection_list[i].h};
+                if (protection_list[i].vie == 1)
+                    SDL_SetRenderDrawColor(renderer, 255, 127, 0, 255);
+                if (protection_list[i].vie == 2)
+                    SDL_SetRenderDrawColor(renderer, 255, 149, 0, 255);
+                else 
+                    SDL_SetRenderDrawColor(renderer, 255, 170, 0, 255);
+                SDL_RenderFillRect(renderer, &PROTECTION);
+            }
         }
 
         for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)

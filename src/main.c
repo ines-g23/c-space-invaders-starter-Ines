@@ -46,6 +46,7 @@ int main(void)
     bool bullet_active = false;
 
     ENNEMY *ennemy_list = create_all_ennemy();
+    PROTECTION *protection_list = create_all_protection();
     bool droite = true;
     bool descente = false;
     bool partie_finie = false;
@@ -82,8 +83,8 @@ int main(void)
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active, &coeur, &coeur_active);
-        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active, &coeur, coeur_active);
+        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active, &coeur, &coeur_active, protection_list);
+        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active, &coeur, coeur_active, protection_list);
     }
 
     free_ennemy(ennemy_list);
