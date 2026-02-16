@@ -52,6 +52,7 @@ int main(void)
     bool partie_finie = false;
     bool partie_gagnee = false;
     bool coeur_active = false;
+    bool menu = true;
 
     TIR_ENNEMI tir_ennemi = {
         .x = 0,
@@ -82,9 +83,10 @@ int main(void)
 
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active);
-        update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active, &coeur, &coeur_active, protection_list);
-        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active, &coeur, coeur_active, protection_list);
+        handle_input(&running, keys, &player, &bullet, &bullet_active, &menu);
+        if (!menu)
+            update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active, &coeur, &coeur_active, protection_list);
+        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active, &coeur, coeur_active, protection_list, menu);
     }
 
     free_ennemy(ennemy_list);
