@@ -9,6 +9,14 @@ typedef struct
     int vie;
 } Entity;
 
+typedef struct
+{
+    float x, y;
+    float vy;
+    int w, h;
+    bool bullet_active;
+} BULLET;
+
 typedef struct 
 {
     float x, y;
