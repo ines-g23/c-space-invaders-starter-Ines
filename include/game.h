@@ -62,6 +62,7 @@ void free_ennemy(ENNEMY *ennemy_list);
 void gestion_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, ENNEMY *ennemy_list);
 void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active);
 void deplacement_ennemi(ENNEMY *ennemy_list, bool *droite, bool *descente, float dt);
+void deplacement_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, float dt);
 
 void gestion_collision_bullet_ennemy(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active);
 void deplacement_bullet(Entity *bullet, bool *bullet_active, float dt);

@@ -347,81 +347,23 @@ void deplacement_ennemi(ENNEMY *ennemy_list, bool *droite, bool *descente, float
     }
 }
 
-
-
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
-{
-    /*player->x += player->vx * dt;
-
-    if (player->x < 0)
-        player->x = 0;
-    if (player->x + player->w > SCREEN_WIDTH)
-        player->x = SCREEN_WIDTH - player->w;
-
-    if (*bullet_active)
-    {
-        bullet->y += bullet->vy * dt;
-        if (bullet->y + bullet->h < 0)
-            *bullet_active = false;
-    }
+void deplacement_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, float dt){
     if (*tir_ennemi_active)
     {
         tir_ennemi->y += tir_ennemi->vy * dt;
         if (tir_ennemi->y + tir_ennemi->h > SCREEN_HEIGHT)
             *tir_ennemi_active = false;
     }
+}
 
-    if (*coeur_active)
-    {
-        coeur->y += coeur->vy*dt;
-        if (coeur->y + coeur->h > SCREEN_HEIGHT)
-            *coeur_active = false;
-    }
-
-    // Déplacer les ennemis de gauche à droite
-    if (*droite) {
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
-        {
-            ennemy_list[i].x += (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
-        }
-        // Vérifier si l'ennemi le plus à droite touche le bord droit
-        if (ennemy_list[NUMBER_ENNEMY_X-1].x + ennemy_list[NUMBER_ENNEMY_X-1].w >= SCREEN_WIDTH) {
-            *droite = false;
-            *descente = true;
-        }
-        else 
-        {
-            *descente = false;
-        }
-    }
-    else 
-    { 
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
-        {
-            ennemy_list[i].x -= (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
-        }
-        // Vérifier si l'ennemi le plus à gauche touche le bord gauche
-        if (ennemy_list[0].x <= 0) {
-            *droite = true; 
-            *descente = true;
-        }
-        else 
-        {
-            *descente = false;
-        }
-    }
-    //Déplacer les ennemis vers le bas
-    if (*descente){
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
-        {
-            ennemy_list[i].y += ennemy_list[i].vy;
-        }
-    }*/
-    //gestion de la collision
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
+{
     deplacement_player (player,dt);
     deplacement_ennemi(ennemy_list, droite, descente,dt);
     deplacement_coeur(coeur, coeur_active, dt);
     deplacement_bullet(bullet, bullet_active, dt);
+    deplacement_tir_ennemi(tir_ennemi, tir_ennemi_active, dt);
+
     gestion_collision_bullet_ennemy(ennemy_list, bullet, bullet_active);
     fin_de_partie(ennemy_list, partie_finie, partie_gagnee, player);
     gestion_vie(player, tir_ennemi, tir_ennemi_active);
