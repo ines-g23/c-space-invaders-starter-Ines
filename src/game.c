@@ -7,90 +7,90 @@
 #include <string.h>
 
 
-ENNEMY *create_all_ennemy(){
-    ENNEMY *ennemy_list = malloc(NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y*sizeof(ENNEMY));
-    if (ennemy_list == NULL) {
+ENEMY *create_all_enemy(){
+    ENEMY *enemy_list = malloc(NUMBER_ENEMY_X*NUMBER_ENEMY_Y*sizeof(ENEMY));
+    if (enemy_list == NULL) {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
         return NULL;
     }
-    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++) {
-        for (int col = 0; col < NUMBER_ENNEMY_X; col++){
-            int idx = ligne * NUMBER_ENNEMY_X + col;
-            ennemy_list[idx].ennemy_type = 0;
+    for (int ligne = 0; ligne < NUMBER_ENEMY_Y; ligne++) {
+        for (int col = 0; col < NUMBER_ENEMY_X; col++){
+            int idx = ligne * NUMBER_ENEMY_X + col;
+            enemy_list[idx].enemy_type = ENEMY_NORMAL;
         }
     }
 
-    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++){
-        int idx1 = ligne * NUMBER_ENNEMY_X;
-        ennemy_list[idx1].ennemy_type = 1;
-        int idx2 = ligne * NUMBER_ENNEMY_X + NUMBER_ENNEMY_X- 1;
-        ennemy_list[idx2].ennemy_type = 1;
+    for (int ligne = 0; ligne < NUMBER_ENEMY_Y; ligne++){
+        int idx1 = ligne * NUMBER_ENEMY_X;
+        enemy_list[idx1].enemy_type = ENEMY_FAST;
+        int idx2 = ligne * NUMBER_ENEMY_X + NUMBER_ENEMY_X- 1;
+        enemy_list[idx2].enemy_type = ENEMY_FAST;
     }
 
-    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++) {
-            for (int col = 0; col < NUMBER_ENNEMY_X; col++) {
-                int idx = ligne * NUMBER_ENNEMY_X + col;
-                ennemy_list[idx].x = 40 + col * (SCREEN_WIDTH - 80) / NUMBER_ENNEMY_X;
-                ennemy_list[idx].y = 20 + ligne * 50;
-                ennemy_list[idx].h = ENNEMY_HEIGHT;
-                ennemy_list[idx].w = ENNEMY_WIDTH;
-                ennemy_list[idx].vx = ENNEMY_SPEED_X;
-                ennemy_list[idx].vy = ENNEMY_SPEED_Y;
-                if (ennemy_list[idx].ennemy_type == 1)
-                    ennemy_list[idx].vy = FAST_ENNEMY_SPEED_Y;
+    for (int ligne = 0; ligne < NUMBER_ENEMY_Y; ligne++) {
+            for (int col = 0; col < NUMBER_ENEMY_X; col++) {
+                int idx = ligne * NUMBER_ENEMY_X + col;
+                enemy_list[idx].x = 40 + col * (SCREEN_WIDTH - 80) / NUMBER_ENEMY_X;
+                enemy_list[idx].y = 20 + ligne * 50;
+                enemy_list[idx].h = ENEMY_HEIGHT;
+                enemy_list[idx].w = ENEMY_WIDTH;
+                enemy_list[idx].vx = ENEMY_SPEED_X;
+                enemy_list[idx].vy = ENEMY_SPEED_Y;
+                if (enemy_list[idx].enemy_type == ENEMY_FAST)
+                    enemy_list[idx].vy = FAST_ENEMY_SPEED_Y;
                 if (ligne == 0)
-                    ennemy_list[idx].vie = 2;
+                    enemy_list[idx].vie = 2;
                 else 
-                    ennemy_list[idx].vie = 1;
+                    enemy_list[idx].vie = 1;
             }
         }
-    return ennemy_list;
+    return enemy_list;
 }
 
-void free_ennemy(ENNEMY *ennemy_list) {
-    free(ennemy_list);
+void free_enemy(ENEMY *enemy_list) {
+    free(enemy_list);
 }
 
-void gestion_collision_bullet_ennemy(ENNEMY *ennemy_list, Entity *bullet, bool *bullet_active){
+void gestion_collision_bullet_enemy(ENEMY *enemy_list, Entity *bullet, bool *bullet_active){
     if (*bullet_active){
         bool deja_collision = false;
-        int i = NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y - 1;
+        int i = NUMBER_ENEMY_X*NUMBER_ENEMY_Y - 1;
         while ((!deja_collision)&& (i >= 0)){
-            if ((ennemy_list[i].vie > 0) &&(ennemy_list[i].x <= bullet->x)&&(bullet->x <= (ennemy_list[i].x+ENNEMY_WIDTH))&& (ennemy_list[i].y <= bullet->y)&&(bullet->y <= (ennemy_list[i].y+ENNEMY_HEIGHT)))
+            if ((enemy_list[i].vie > 0) &&(enemy_list[i].x <= bullet->x)&&(bullet->x <= (enemy_list[i].x+ENEMY_WIDTH))&& (enemy_list[i].y <= bullet->y)&&(bullet->y <= (enemy_list[i].y+ENEMY_HEIGHT)))
             {
-                ennemy_list[i].vie -= 1;
+                enemy_list[i].vie -= 1;
                 deja_collision = true;
                 *bullet_active = false;
             }
             i -= 1;
         } 
     }
-}
+} 
 
-void gestion_vie(Entity *player, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active){
-    if (*tir_ennemi_active){
-        if ((player->x <= tir_ennemi->x)&&(tir_ennemi->x <= (player->x + PLAYER_WIDTH))&& (player->y <= tir_ennemi->y)&&(tir_ennemi->y <= (player->y+ PLAYER_WIDTH)))
+void gestion_vie(Entity *player, TIR_ENEMY *tir_enemy, bool *tir_enemy_active){
+    if (*tir_enemy_active){
+        if ((player->x <= tir_enemy->x)&&(tir_enemy->x <= (player->x + PLAYER_WIDTH))&& (player->y <= tir_enemy->y)&&(tir_enemy->y <= (player->y+ PLAYER_WIDTH)))
         {
             player->vie -= 1;
-            *tir_ennemi_active = false;
+            *tir_enemy_active = false;
         }
     }
 }
 
-void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee, Entity *player)
+void fin_de_partie(ENEMY *enemy_list, bool *partie_finie, bool *partie_gagnee, Entity *player)
 {
     if (!(*partie_finie))
     {
         bool il_existe_ennemi = false;
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
         {
             // Si un ennemi a atteint le bas de l'écran, la partie est terminée
-            if ((ennemy_list[i].vie > 0) && ((ennemy_list[i].y + ENNEMY_HEIGHT + 60) > SCREEN_HEIGHT)){
+            if ((enemy_list[i].vie > 0) && ((enemy_list[i].y + ENEMY_HEIGHT + 60) > SCREEN_HEIGHT)){
                 *partie_finie = true;
                 return;
             }
             // Compter les ennemis qui existent encore
-            if (ennemy_list[i].vie > 0){
+            if (enemy_list[i].vie > 0){
                 il_existe_ennemi = true;
             }
         }  
@@ -106,19 +106,19 @@ void fin_de_partie(ENNEMY *ennemy_list, bool *partie_finie, bool *partie_gagnee,
     }
 }
 
-void gestion_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, ENNEMY *ennemy_list)
+void gestion_TIR_ENEMY(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, ENEMY *enemy_list)
 {
-    if (!*tir_ennemi_active){
+    if (!*tir_enemy_active){
         int a = rand()%1000;
-        if (a < 1000*TIR_ENNEMI_PROBA)
+        if (a < 1000*TIR_ENEMY_PROBA)
         {
-            int colonne = rand()%NUMBER_ENNEMY_X;
+            int colonne = rand()%NUMBER_ENEMY_X;
             int ligne_celui_qui_tire = -1;
             // Chercher l'ennemi le plus bas (dernier vivant) dans cette colonne
-            for (int ligne = NUMBER_ENNEMY_Y - 1; ligne >= 0; ligne--)
+            for (int ligne = NUMBER_ENEMY_Y - 1; ligne >= 0; ligne--)
             {
-                int id = ligne * NUMBER_ENNEMY_X + colonne;
-                if (ennemy_list[id].vie > 0)
+                int id = ligne * NUMBER_ENEMY_X + colonne;
+                if (enemy_list[id].vie > 0)
                 {
                     ligne_celui_qui_tire = ligne;
                     break;
@@ -126,13 +126,13 @@ void gestion_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, ENNEMY 
             } 
             if (ligne_celui_qui_tire >= 0)
             {
-                int id = ligne_celui_qui_tire * NUMBER_ENNEMY_X + colonne;
-                *tir_ennemi_active = true;
-                tir_ennemi->x = ennemy_list[id].x + ennemy_list[id].w / 2;
-                tir_ennemi->y = ennemy_list[id].y;
-                tir_ennemi->w = TIR_ENNEMI_WIDTH;
-                tir_ennemi->h = TIR_ENNEMI_HEIGHT;
-                tir_ennemi->vy = TIR_ENNEMI_SPEED;
+                int id = ligne_celui_qui_tire * NUMBER_ENEMY_X + colonne;
+                *tir_enemy_active = true;
+                tir_enemy->x = enemy_list[id].x + enemy_list[id].w / 2;
+                tir_enemy->y = enemy_list[id].y;
+                tir_enemy->w = TIR_ENEMY_WIDTH;
+                tir_enemy->h = TIR_ENEMY_HEIGHT;
+                tir_enemy->vy = TIR_ENEMY_SPEED;
             }
         }
     }
@@ -185,17 +185,17 @@ PROTECTION *create_all_protection(){
     return protection_list;
 }
 
-void gestion_collision_protection(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, PROTECTION *protection_list, Entity *bullet, bool *bullet_active)
+void gestion_collision_protection(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, PROTECTION *protection_list, Entity *bullet, bool *bullet_active)
 {
-    if (*tir_ennemi_active){
+    if (*tir_enemy_active){
         bool deja_collision = false;
         int i = NUMBER_PROTECTION - 1;
         while ((!deja_collision)&& (i >= 0)){
-            if ((protection_list[i].vie > 0) &&(protection_list[i].x <= tir_ennemi->x + TIR_ENNEMI_WIDTH)&&(tir_ennemi->x <= (protection_list[i].x + PROTECTION_WIDTH))&& (protection_list[i].y <= tir_ennemi->y)&&(tir_ennemi->y <= (protection_list[i].y+PROTECTION_HEIGHT)))
+            if ((protection_list[i].vie > 0) &&(protection_list[i].x <= tir_enemy->x + TIR_ENEMY_WIDTH)&&(tir_enemy->x <= (protection_list[i].x + PROTECTION_WIDTH))&& (protection_list[i].y <= tir_enemy->y)&&(tir_enemy->y <= (protection_list[i].y+PROTECTION_HEIGHT)))
             {
                 protection_list[i].vie -= 1;
                 deja_collision = true;
-                *tir_ennemi_active = false;
+                *tir_enemy_active = false;
             }
             i -= 1;
         } 
@@ -305,15 +305,15 @@ void deplacement_coeur(COEUR *coeur, bool *coeur_active, float dt){
     }
 }
 
-void deplacement_ennemi(ENNEMY *ennemy_list, bool *droite, bool *descente, float dt){
+void deplacement_ennemi(ENEMY *enemy_list, bool *droite, bool *descente, float dt){
     // Déplacer les ennemis de gauche à droite
     if (*droite) {
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
         {
-            ennemy_list[i].x += (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
+            enemy_list[i].x += (ENEMY_SPEED_X + (ENEMY_SPEED_X_MAX-ENEMY_SPEED_X)*enemy_list[0].y/SCREEN_HEIGHT)*dt;
         }
         // Vérifier si l'ennemi le plus à droite touche le bord droit
-        if (ennemy_list[NUMBER_ENNEMY_X-1].x + ennemy_list[NUMBER_ENNEMY_X-1].w >= SCREEN_WIDTH) {
+        if (enemy_list[NUMBER_ENEMY_X-1].x + enemy_list[NUMBER_ENEMY_X-1].w >= SCREEN_WIDTH) {
             *droite = false;
             *descente = true;
         }
@@ -324,12 +324,12 @@ void deplacement_ennemi(ENNEMY *ennemy_list, bool *droite, bool *descente, float
     }
     else 
     { 
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
         {
-            ennemy_list[i].x -= (ENNEMY_SPEED_X + (ENNEMY_SPEED_X_MAX-ENNEMY_SPEED_X)*ennemy_list[0].y/SCREEN_HEIGHT)*dt;
+            enemy_list[i].x -= (ENEMY_SPEED_X + (ENEMY_SPEED_X_MAX-ENEMY_SPEED_X)*enemy_list[0].y/SCREEN_HEIGHT)*dt;
         }
         // Vérifier si l'ennemi le plus à gauche touche le bord gauche
-        if (ennemy_list[0].x <= 0) {
+        if (enemy_list[0].x <= 0) {
             *droite = true; 
             *descente = true;
         }
@@ -340,40 +340,39 @@ void deplacement_ennemi(ENNEMY *ennemy_list, bool *droite, bool *descente, float
     }
     //Déplacer les ennemis vers le bas
     if (*descente){
-        for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+        for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
         {
-            ennemy_list[i].y += ennemy_list[i].vy;
+            enemy_list[i].y += enemy_list[i].vy;
         }
     }
 }
 
-void deplacement_tir_ennemi(TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, float dt){
-    if (*tir_ennemi_active)
+void deplacement_TIR_ENEMY(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, float dt){
+    if (*tir_enemy_active)
     {
-        tir_ennemi->y += tir_ennemi->vy * dt;
-        if (tir_ennemi->y + tir_ennemi->h > SCREEN_HEIGHT)
-            *tir_ennemi_active = false;
+        tir_enemy->y += tir_enemy->vy * dt;
+        if (tir_enemy->y + tir_enemy->h > SCREEN_HEIGHT)
+            *tir_enemy_active = false;
     }
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENNEMY *ennemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENNEMI *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
+void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENEMY *enemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENEMY *tir_enemy, bool *tir_enemy_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
 {
     deplacement_player (player,dt);
-    deplacement_ennemi(ennemy_list, droite, descente,dt);
+    deplacement_ennemi(enemy_list, droite, descente,dt);
     deplacement_coeur(coeur, coeur_active, dt);
     deplacement_bullet(bullet, bullet_active, dt);
-    deplacement_tir_ennemi(tir_ennemi, tir_ennemi_active, dt);
-
-    gestion_collision_bullet_ennemy(ennemy_list, bullet, bullet_active);
-    fin_de_partie(ennemy_list, partie_finie, partie_gagnee, player);
-    gestion_vie(player, tir_ennemi, tir_ennemi_active);
-    gestion_tir_ennemi(tir_ennemi, tir_ennemi_active, ennemy_list);
+    deplacement_TIR_ENEMY(tir_enemy, tir_enemy_active, dt);
+    gestion_collision_bullet_enemy(enemy_list, bullet, bullet_active);
+    fin_de_partie(enemy_list, partie_finie, partie_gagnee, player);
+    gestion_vie(player, tir_enemy, tir_enemy_active);
+    gestion_TIR_ENEMY(tir_enemy, tir_enemy_active, enemy_list);
     apparition_coeur(coeur, coeur_active);
     collision_coeur(coeur, coeur_active, player);
-    gestion_collision_protection(tir_ennemi, tir_ennemi_active, protection_list, bullet, bullet_active);
+    gestion_collision_protection(tir_enemy, tir_enemy_active, protection_list, bullet, bullet_active);
 }
     
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENNEMY *ennemy_list, bool partie_finie, bool partie_gagnee, TIR_ENNEMI *tir_ennemi, bool tir_ennemi_active, COEUR *coeur, bool coeur_active, PROTECTION *protection_list, bool menu)
+void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENEMY *enemy_list, bool partie_finie, bool partie_gagnee, TIR_ENEMY *tir_enemy, bool tir_enemy_active, COEUR *coeur, bool coeur_active, PROTECTION *protection_list, bool menu)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -406,13 +405,13 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
                 SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
                 SDL_RenderFillRect(renderer, &bullet_rect);
             }
-            if (tir_ennemi_active)
+            if (tir_enemy_active)
             {
-                SDL_Rect tir_ennemi_rect = {
-                    (int)tir_ennemi->x, (int)tir_ennemi->y,
-                    tir_ennemi->w, tir_ennemi->h};
+                SDL_Rect tir_enemy_rect = {
+                    (int)tir_enemy->x, (int)tir_enemy->y,
+                    tir_enemy->w, tir_enemy->h};
                 SDL_SetRenderDrawColor(renderer, 192, 192, 192, 125);
-                SDL_RenderFillRect(renderer, &tir_ennemi_rect);
+                SDL_RenderFillRect(renderer, &tir_enemy_rect);
             }
             
             if (coeur_active)
@@ -435,17 +434,17 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
                 }
             }
 
-            for (int i = 0; i < NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y; i++)
+            for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
             {  
-                if (ennemy_list[i].vie > 0){
-                    SDL_Rect ENNEMY = {
-                (int)ennemy_list[i].x, (int)ennemy_list[i].y,
-                    ennemy_list[i].w, ennemy_list[i].h};
-                    if (ennemy_list[i].vie == 1)
+                if (enemy_list[i].vie > 0){
+                    SDL_Rect ENEMY = {
+                (int)enemy_list[i].x, (int)enemy_list[i].y,
+                    enemy_list[i].w, enemy_list[i].h};
+                    if (enemy_list[i].vie == 1)
                         SDL_SetRenderDrawColor(renderer, 255, 50, 255, 255);
                     else 
                         SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
-                    SDL_RenderFillRect(renderer, &ENNEMY);
+                    SDL_RenderFillRect(renderer, &ENEMY);
                 }
             } 
         }
@@ -477,7 +476,7 @@ void cleanup(SDL_Window *window, SDL_Renderer *renderer)
 
 void render_text(SDL_Renderer *renderer, const char *text, int x, int y, SDL_Color color, int taille)
 {
-    //TTF_Font *font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 28);
+    //TTF_Font *font = TTF_OpenFont("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", taille); si EarlyCameBoy n'est pas installé
     TTF_Font *font = TTF_OpenFont("./fonts/EarlyGameBoy.ttf", taille);
     if (!font)
     {

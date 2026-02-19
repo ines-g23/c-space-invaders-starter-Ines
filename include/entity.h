@@ -17,29 +17,30 @@ typedef struct
     bool bullet_active;
 } BULLET;
 
+typedef enum {
+    ENEMY_NORMAL = 0,
+    ENEMY_FAST = 1,
+    ENEMY_RESISTANT = 2,
+    ENEMY_RESISTANT_ET_RAPIDE = 3,
+} EnemyType;
+
+
 typedef struct 
 {
     float x, y;
     float vx, vy;
     int w, h;
     int vie;
-    int ennemy_type;
-} ENNEMY;
+    EnemyType enemy_type;
+} ENEMY;
 
-enum ENNEMY_TYPE
-{
-    NORMAL,
-    RESISTANT,
-    RAPIDE,
-    RESISTANT_ET_RAPIDE,
-};
 
 typedef struct 
 {
     float x, y;
     float vy;
     int w, h;
-} TIR_ENNEMI;
+} TIR_ENEMY;
 
 typedef struct 
 {

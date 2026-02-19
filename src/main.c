@@ -45,7 +45,7 @@ int main(void)
 
     bool bullet_active = false;
 
-    ENNEMY *ennemy_list = create_all_ennemy();
+    ENEMY *enemy_list = create_all_enemy();
     PROTECTION *protection_list = create_all_protection();
     bool droite = true;
     bool descente = false;
@@ -54,12 +54,12 @@ int main(void)
     bool coeur_active = false;
     bool menu = true;
 
-    TIR_ENNEMI tir_ennemi = {
+    TIR_ENEMY TIR_ENEMY = {
         .x = 0,
         .y = 0,
         .h = 10,
         .w = 5,
-        .vy = TIR_ENNEMI_SPEED,
+        .vy = TIR_ENEMY_SPEED,
     };
 
     COEUR coeur = {
@@ -71,7 +71,7 @@ int main(void)
         .path = "coeur.png"
     };
 
-    bool tir_ennemi_active = false;
+    bool TIR_ENEMY_active = false;
 
     while (running)
     {
@@ -85,11 +85,11 @@ int main(void)
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
         handle_input(&running, keys, &player, &bullet, &bullet_active, &menu);
         if (!menu)
-            update(&player, &bullet, &bullet_active, dt, ennemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &tir_ennemi, &tir_ennemi_active, &coeur, &coeur_active, protection_list);
-        render(renderer, &player, &bullet, bullet_active, ennemy_list, partie_finie, partie_gagnee, &tir_ennemi, tir_ennemi_active, &coeur, coeur_active, protection_list, menu);
+            update(&player, &bullet, &bullet_active, dt, enemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &TIR_ENEMY, &TIR_ENEMY_active, &coeur, &coeur_active, protection_list);
+        render(renderer, &player, &bullet, bullet_active, enemy_list, partie_finie, partie_gagnee, &TIR_ENEMY, TIR_ENEMY_active, &coeur, coeur_active, protection_list, menu);
     }
 
-    free_ennemy(ennemy_list);
+    free_enemy(enemy_list);
     cleanup(window, renderer);
     TTF_Quit();
     return 0;
