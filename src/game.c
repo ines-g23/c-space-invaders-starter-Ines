@@ -9,7 +9,7 @@
 
 #define SIZE 100
 
-ENNEMY *create_all_ennemy(){
+/*ENNEMY *create_all_ennemy(){
     ENNEMY *ennemy_list = malloc(NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y*sizeof(ENNEMY));
     if (ennemy_list == NULL) {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
@@ -59,6 +59,46 @@ ENNEMY *create_all_ennemy(){
                 ennemy_list[idx].vie = 1;
         }
     }
+    return ennemy_list;
+}*/
+
+ENNEMY *create_all_ennemy(){
+    ENNEMY *ennemy_list = malloc(NUMBER_ENNEMY_X*NUMBER_ENNEMY_Y*sizeof(ENNEMY));
+    if (ennemy_list == NULL) {
+        fprintf(stderr, "Erreur d'allocation mémoire\n");
+        return NULL;
+    }
+    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++) {
+        for (int col = 0; col < NUMBER_ENNEMY_X; col++){
+            int idx = ligne * NUMBER_ENNEMY_X + col;
+            ennemy_list[idx].ennemy_type = 0;
+        }
+    }
+
+    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++){
+        int idx1 = ligne * NUMBER_ENNEMY_X;
+        ennemy_list[idx1].ennemy_type = 1;
+        int idx2 = ligne * NUMBER_ENNEMY_X + NUMBER_ENNEMY_X- 1;
+        ennemy_list[idx2].ennemy_type = 1;
+    }
+
+    for (int ligne = 0; ligne < NUMBER_ENNEMY_Y; ligne++) {
+            for (int col = 0; col < NUMBER_ENNEMY_X; col++) {
+                int idx = ligne * NUMBER_ENNEMY_X + col;
+                ennemy_list[idx].x = 40 + col * (SCREEN_WIDTH - 80) / NUMBER_ENNEMY_X;
+                ennemy_list[idx].y = 20 + ligne * 50;
+                ennemy_list[idx].h = ENNEMY_HEIGHT;
+                ennemy_list[idx].w = ENNEMY_WIDTH;
+                ennemy_list[idx].vx = ENNEMY_SPEED_X;
+                ennemy_list[idx].vy = ENNEMY_SPEED_Y;
+                if (ennemy_list[idx].ennemy_type == 1)
+                    ennemy_list[idx].vy = FAST_ENNEMY_SPEED_Y;
+                if (ligne == 0)
+                    ennemy_list[idx].vie = 2;
+                else 
+                    ennemy_list[idx].vie = 1;
+            }
+        }
     return ennemy_list;
 }
 

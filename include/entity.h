@@ -23,7 +23,16 @@ typedef struct
     float vx, vy;
     int w, h;
     int vie;
+    int ennemy_type;
 } ENNEMY;
+
+enum ENNEMY_TYPE
+{
+    NORMAL,
+    RESISTANT,
+    RAPIDE,
+    RESISTANT_ET_RAPIDE,
+};
 
 typedef struct 
 {
