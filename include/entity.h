@@ -14,8 +14,16 @@ typedef struct
     float x, y;
     float vy;
     int w, h;
-    bool bullet_active;
-} BULLET;
+    bool bullet_active1;
+} BULLET1;
+
+typedef struct
+{
+    float x, y;
+    float vy;
+    int w, h;
+    bool bullet_active2;
+} BULLET2;
 
 typedef enum {
     ENEMY_NORMAL = 0,

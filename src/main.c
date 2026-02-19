@@ -35,15 +35,23 @@ int main(void)
         .vie = PLAYER_LIFE,
     };
 
-    Entity bullet = {
+    BULLET1 bullet1 = {
         .x = player.x + player.w / 2 - BULLET_WIDTH / 2,
         .y = player.y,
         .w = BULLET_WIDTH,
         .h = BULLET_HEIGHT,
         .vy = -BULLET_SPEED,
+        .bullet_active1 = false,
     };
 
-    bool bullet_active = false;
+    BULLET2 bullet2 = {
+        .x = player.x + player.w / 2 - BULLET_WIDTH / 2,
+        .y = player.y,
+        .w = BULLET_WIDTH,
+        .h = BULLET_HEIGHT,
+        .vy = -BULLET_SPEED,
+        .bullet_active2 = false,
+    };
 
     ENEMY *enemy_list = create_all_enemy();
     PROTECTION *protection_list = create_all_protection();
@@ -83,10 +91,10 @@ int main(void)
 
         SDL_PumpEvents();
         const Uint8 *keys = SDL_GetKeyboardState(NULL);
-        handle_input(&running, keys, &player, &bullet, &bullet_active, &menu);
+        handle_input(&running, keys, &player, &bullet1, &bullet2, &menu);
         if (!menu)
-            update(&player, &bullet, &bullet_active, dt, enemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &TIR_ENEMY, &TIR_ENEMY_active, &coeur, &coeur_active, protection_list);
-        render(renderer, &player, &bullet, bullet_active, enemy_list, partie_finie, partie_gagnee, &TIR_ENEMY, TIR_ENEMY_active, &coeur, coeur_active, protection_list, menu);
+            update(&player, &bullet1, &bullet2, dt, enemy_list, &droite, &descente, &partie_finie, &partie_gagnee, &TIR_ENEMY, &TIR_ENEMY_active, &coeur, &coeur_active, protection_list);
+        render(renderer, &player, &bullet1, &bullet2, enemy_list, partie_finie, partie_gagnee, &TIR_ENEMY, TIR_ENEMY_active, &coeur, coeur_active, protection_list, menu);
     }
 
     free_enemy(enemy_list);

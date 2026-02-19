@@ -48,9 +48,9 @@
 
 
 bool init(SDL_Window **window, SDL_Renderer **renderer);
-void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active, bool *menu);
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENEMY *enemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee,TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list);
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENEMY *enemy_list, bool partie_finie, bool partie_gagnee, TIR_ENEMY *tir_ennemi, bool tir_ennemi_active,COEUR *coeur, bool coeur_active,PROTECTION *protection_list, bool menu);
+void handle_input(bool *running, const Uint8 *keys, Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, bool *menu);
+void update(Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, float dt, ENEMY *enemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee,TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list);
+void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, ENEMY *enemy_list, bool partie_finie, bool partie_gagnee, TIR_ENEMY *tir_ennemi, bool tir_ennemi_active,COEUR *coeur, bool coeur_active,PROTECTION *protection_list, bool menu);
 void render_text(SDL_Renderer *renderer, const char *text, int x, int y, SDL_Color color, int taille);
 void render_image(SDL_Renderer *renderer, const char *image_path, int x, int y, int width, int height);
 void cleanup(SDL_Window *window, SDL_Renderer *renderer);
@@ -64,8 +64,8 @@ void gestion_vie(Entity *player, TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active)
 void deplacement_ennemi(ENEMY *enemy_list, bool *droite, bool *descente, float dt);
 void deplacement_tir_ennemi(TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active, float dt);
 
-void gestion_collision_bullet_enemy(ENEMY *enemy_list, Entity *bullet, bool *bullet_active);
-void deplacement_bullet(Entity *bullet, bool *bullet_active, float dt);
+void gestion_collision_bullet_enemy(ENEMY *enemy_list, BULLET1 *bullet1, BULLET2 *bullet2);
+void deplacement_bullet(BULLET1 *bullet1, BULLET2 *bullet2, float dt);
 
 void fin_de_partie(ENEMY *enemy_list, bool *partie_finie, bool *partie_gagnee, Entity *player);
 
@@ -74,7 +74,7 @@ void collision_coeur(COEUR *coeur, bool *coeur_active, Entity *player);
 void deplacement_coeur(COEUR *coeur, bool *coeur_active, float dt);
 
 PROTECTION *create_all_protection();
-void gestion_collision_protection(TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active, PROTECTION *protection_list,Entity *bullet, bool *bullet_active);
+void gestion_collision_protection(TIR_ENEMY *tir_ennemi, bool *tir_ennemi_active, PROTECTION *protection_list,BULLET1 *bullet1, BULLET2 *bullet2);
 
 #endif
 

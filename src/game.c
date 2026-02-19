@@ -27,6 +27,13 @@ ENEMY *create_all_enemy(){
         enemy_list[idx2].enemy_type = ENEMY_FAST;
     }
 
+    for (int col = 1; col < NUMBER_ENEMY_X - 1; col++){
+        enemy_list[col].enemy_type = ENEMY_RESISTANT;
+    }
+
+    enemy_list[0].enemy_type = ENEMY_RESISTANT_ET_RAPIDE;
+    enemy_list[NUMBER_ENEMY_X-1].enemy_type = ENEMY_RESISTANT_ET_RAPIDE;
+
     for (int ligne = 0; ligne < NUMBER_ENEMY_Y; ligne++) {
             for (int col = 0; col < NUMBER_ENEMY_X; col++) {
                 int idx = ligne * NUMBER_ENEMY_X + col;
@@ -35,10 +42,11 @@ ENEMY *create_all_enemy(){
                 enemy_list[idx].h = ENEMY_HEIGHT;
                 enemy_list[idx].w = ENEMY_WIDTH;
                 enemy_list[idx].vx = ENEMY_SPEED_X;
-                enemy_list[idx].vy = ENEMY_SPEED_Y;
-                if (enemy_list[idx].enemy_type == ENEMY_FAST)
+                if ((enemy_list[idx].enemy_type == ENEMY_FAST)||(enemy_list[idx].enemy_type == ENEMY_RESISTANT_ET_RAPIDE))
                     enemy_list[idx].vy = FAST_ENEMY_SPEED_Y;
-                if (ligne == 0)
+                else
+                    enemy_list[idx].vy = ENEMY_SPEED_Y;
+                if ((enemy_list[idx].enemy_type == ENEMY_RESISTANT)||(enemy_list[idx].enemy_type == ENEMY_RESISTANT_ET_RAPIDE))
                     enemy_list[idx].vie = 2;
                 else 
                     enemy_list[idx].vie = 1;
@@ -51,16 +59,29 @@ void free_enemy(ENEMY *enemy_list) {
     free(enemy_list);
 }
 
-void gestion_collision_bullet_enemy(ENEMY *enemy_list, Entity *bullet, bool *bullet_active){
-    if (*bullet_active){
+void gestion_collision_bullet_enemy(ENEMY *enemy_list, BULLET1 *bullet1, BULLET2 *bullet2){
+    if (bullet1->bullet_active1){
         bool deja_collision = false;
         int i = NUMBER_ENEMY_X*NUMBER_ENEMY_Y - 1;
         while ((!deja_collision)&& (i >= 0)){
-            if ((enemy_list[i].vie > 0) &&(enemy_list[i].x <= bullet->x)&&(bullet->x <= (enemy_list[i].x+ENEMY_WIDTH))&& (enemy_list[i].y <= bullet->y)&&(bullet->y <= (enemy_list[i].y+ENEMY_HEIGHT)))
+            if ((enemy_list[i].vie > 0) &&(enemy_list[i].x <= bullet1->x)&&(bullet1->x <= (enemy_list[i].x+ENEMY_WIDTH))&& (enemy_list[i].y <= bullet1->y)&&(bullet1->y <= (enemy_list[i].y+ENEMY_HEIGHT)))
             {
                 enemy_list[i].vie -= 1;
                 deja_collision = true;
-                *bullet_active = false;
+                bullet1->bullet_active1 = false;
+            }
+            i -= 1;
+        } 
+    }
+    if (bullet2->bullet_active2){
+        bool deja_collision = false;
+        int i = NUMBER_ENEMY_X*NUMBER_ENEMY_Y - 1;
+        while ((!deja_collision)&& (i >= 0)){
+            if ((enemy_list[i].vie > 0) &&(enemy_list[i].x <= bullet2->x)&&(bullet2->x <= (enemy_list[i].x+ENEMY_WIDTH))&& (enemy_list[i].y <= bullet2->y)&&(bullet2->y <= (enemy_list[i].y+ENEMY_HEIGHT)))
+            {
+                enemy_list[i].vie -= 1;
+                deja_collision = true;
+                bullet2->bullet_active2 = false;
             }
             i -= 1;
         } 
@@ -185,7 +206,7 @@ PROTECTION *create_all_protection(){
     return protection_list;
 }
 
-void gestion_collision_protection(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, PROTECTION *protection_list, Entity *bullet, bool *bullet_active)
+void gestion_collision_protection(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, PROTECTION *protection_list, BULLET1 *bullet1, BULLET2 *bullet2)
 {
     if (*tir_enemy_active){
         bool deja_collision = false;
@@ -200,14 +221,26 @@ void gestion_collision_protection(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, 
             i -= 1;
         } 
     }
-    if (*bullet_active){
+    if (bullet1->bullet_active1){
         bool deja_collision = false;
         int i = NUMBER_PROTECTION - 1;
         while ((!deja_collision)&& (i >= 0)){
-            if ((protection_list[i].vie > 0) &&(protection_list[i].x <= bullet->x + BULLET_WIDTH)&&(bullet->x <= (protection_list[i].x+ PROTECTION_WIDTH))&& (protection_list[i].y <= bullet->y + BULLET_HEIGHT)&&(bullet->y <= (protection_list[i].y+PROTECTION_HEIGHT)))
+            if ((protection_list[i].vie > 0) &&(protection_list[i].x <= bullet1->x + BULLET_WIDTH)&&(bullet1->x <= (protection_list[i].x+ PROTECTION_WIDTH))&& (protection_list[i].y <= bullet1->y + BULLET_HEIGHT)&&(bullet1->y <= (protection_list[i].y+PROTECTION_HEIGHT)))
             {
                 deja_collision = true;
-                *bullet_active = false;
+                bullet1->bullet_active1 = false;
+            }
+            i -= 1;
+        } 
+    }
+    if (bullet2->bullet_active2){
+        bool deja_collision = false;
+        int i = NUMBER_PROTECTION - 1;
+        while ((!deja_collision)&& (i >= 0)){
+            if ((protection_list[i].vie > 0) &&(protection_list[i].x <= bullet2->x + BULLET_WIDTH)&&(bullet2->x <= (protection_list[i].x+ PROTECTION_WIDTH))&& (protection_list[i].y <= bullet2->y + BULLET_HEIGHT)&&(bullet2->y <= (protection_list[i].y+PROTECTION_HEIGHT)))
+            {
+                deja_collision = true;
+                bullet2->bullet_active2 = false;
             }
             i -= 1;
         } 
@@ -243,7 +276,7 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
     return true;
 }
 
-void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bullet, bool *bullet_active, bool *menu)
+void handle_input(bool *running, const Uint8 *keys, Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, bool *menu)
 {
     // Gérer les événements SDL en permanence (menu ou pas)
     SDL_Event event;
@@ -266,14 +299,23 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, Entity *bull
         if (keys[SDL_SCANCODE_RIGHT])
             player->vx = PLAYER_SPEED;
 
-        if (keys[SDL_SCANCODE_SPACE] && !*bullet_active)
+        if (keys[SDL_SCANCODE_SPACE] && !bullet1->bullet_active1)
         {
-            *bullet_active = true;
-            bullet->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
-            bullet->y = player->y;
-            bullet->w = BULLET_WIDTH;
-            bullet->h = BULLET_HEIGHT;
-            bullet->vy = -BULLET_SPEED;
+            bullet1->bullet_active1 = true;
+            bullet1->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
+            bullet1->y = player->y;
+            bullet1->w = BULLET_WIDTH;
+            bullet1->h = BULLET_HEIGHT;
+            bullet1->vy = -BULLET_SPEED;
+        }
+        else if (keys[SDL_SCANCODE_SPACE] && !bullet2->bullet_active2)
+        {
+            bullet2->bullet_active2 = true;
+            bullet2->x = player->x + player->w / 2 - BULLET_WIDTH / 2;
+            bullet2->y = player->y;
+            bullet2->w = BULLET_WIDTH;
+            bullet2->h = BULLET_HEIGHT;
+            bullet2->vy = -BULLET_SPEED;
         }
     }
 }
@@ -287,12 +329,18 @@ void deplacement_player (Entity *player, float dt){
         player->x = SCREEN_WIDTH - player->w;
 }
 
-void deplacement_bullet(Entity *bullet, bool *bullet_active, float dt){
-    if (*bullet_active)
+void deplacement_bullet(BULLET1 *bullet1, BULLET2 *bullet2, float dt){
+    if (bullet1->bullet_active1)
     {
-        bullet->y += bullet->vy * dt;
-        if (bullet->y + bullet->h < 0)
-            *bullet_active = false;
+        bullet1->y += bullet1->vy * dt;
+        if (bullet1->y + bullet1->h < 0)
+            bullet1->bullet_active1 = false;
+    }
+    if (bullet2->bullet_active2)
+    {
+        bullet2->y += bullet2->vy * dt;
+        if (bullet2->y + bullet2->h < 0)
+            bullet2->bullet_active2 = false;
     }
 }
 
@@ -356,23 +404,23 @@ void deplacement_TIR_ENEMY(TIR_ENEMY *tir_enemy, bool *tir_enemy_active, float d
     }
 }
 
-void update(Entity *player, Entity *bullet, bool *bullet_active, float dt, ENEMY *enemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENEMY *tir_enemy, bool *tir_enemy_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
+void update(Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, float dt, ENEMY *enemy_list, bool *droite, bool *descente, bool *partie_finie, bool *partie_gagnee, TIR_ENEMY *tir_enemy, bool *tir_enemy_active, COEUR *coeur, bool *coeur_active, PROTECTION *protection_list)
 {
     deplacement_player (player,dt);
     deplacement_ennemi(enemy_list, droite, descente,dt);
     deplacement_coeur(coeur, coeur_active, dt);
-    deplacement_bullet(bullet, bullet_active, dt);
+    deplacement_bullet(bullet1, bullet2, dt);
     deplacement_TIR_ENEMY(tir_enemy, tir_enemy_active, dt);
-    gestion_collision_bullet_enemy(enemy_list, bullet, bullet_active);
+    gestion_collision_bullet_enemy(enemy_list, bullet1, bullet2);
     fin_de_partie(enemy_list, partie_finie, partie_gagnee, player);
     gestion_vie(player, tir_enemy, tir_enemy_active);
     gestion_TIR_ENEMY(tir_enemy, tir_enemy_active, enemy_list);
     apparition_coeur(coeur, coeur_active);
     collision_coeur(coeur, coeur_active, player);
-    gestion_collision_protection(tir_enemy, tir_enemy_active, protection_list, bullet, bullet_active);
+    gestion_collision_protection(tir_enemy, tir_enemy_active, protection_list, bullet1, bullet2);
 }
     
-void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_active, ENEMY *enemy_list, bool partie_finie, bool partie_gagnee, TIR_ENEMY *tir_enemy, bool tir_enemy_active, COEUR *coeur, bool coeur_active, PROTECTION *protection_list, bool menu)
+void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *bullet2, ENEMY *enemy_list, bool partie_finie, bool partie_gagnee, TIR_ENEMY *tir_enemy, bool tir_enemy_active, COEUR *coeur, bool coeur_active, PROTECTION *protection_list, bool menu)
 {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
@@ -397,11 +445,19 @@ void render(SDL_Renderer *renderer, Entity *player, Entity *bullet, bool bullet_
                 render_image(renderer, vie, SCREEN_WIDTH - (15 + i*30), 20, VIE_WIDTH, VIE_HEIGHT);
             }
 
-            if (bullet_active)
+            if (bullet1->bullet_active1)
             {
                 SDL_Rect bullet_rect = {
-                    (int)bullet->x, (int)bullet->y,
-                    bullet->w, bullet->h};
+                    (int)bullet1->x, (int)bullet1->y,
+                    bullet1->w, bullet1->h};
+                SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
+                SDL_RenderFillRect(renderer, &bullet_rect);
+            }
+            if (bullet2->bullet_active2)
+            {
+                SDL_Rect bullet_rect = {
+                    (int)bullet2->x, (int)bullet2->y,
+                    bullet2->w, bullet2->h};
                 SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
                 SDL_RenderFillRect(renderer, &bullet_rect);
             }
