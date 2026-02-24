@@ -42,7 +42,7 @@ int main(void)
         .h = BULLET_HEIGHT,
         .vy = -BULLET_SPEED,
         .bullet_active1 = false,
-    };
+    };  
 
     BULLET2 bullet2 = {
         .x = player.x + player.w / 2 - BULLET_WIDTH / 2,

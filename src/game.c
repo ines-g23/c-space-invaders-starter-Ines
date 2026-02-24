@@ -254,7 +254,6 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
         SDL_Log("Erreur SDL_Init: %s", SDL_GetError());
         return false;
     }
-
     *window = SDL_CreateWindow("Space Invaders (SDL)", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                SCREEN_WIDTH, SCREEN_HEIGHT, 0);
     if (!*window)
@@ -263,7 +262,6 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
         SDL_Quit();
         return false;
     }
-
     *renderer = SDL_CreateRenderer(*window, -1, SDL_RENDERER_ACCELERATED);
     if (!*renderer)
     {
@@ -272,7 +270,6 @@ bool init(SDL_Window **window, SDL_Renderer **renderer)
         SDL_Quit();
         return false;
     }
-
     return true;
 }
 
@@ -285,20 +282,17 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, BULLET1 *bul
         if (event.type == SDL_QUIT)
             *running = false;
     }
-
     if (*menu){
         if (keys[SDL_SCANCODE_SPACE]){
             *menu = false;
         }
     }
     if(!*menu) { 
-
         player->vx = 0.0f;
         if (keys[SDL_SCANCODE_LEFT])
             player->vx = -PLAYER_SPEED;
         if (keys[SDL_SCANCODE_RIGHT])
             player->vx = PLAYER_SPEED;
-
         if (keys[SDL_SCANCODE_SPACE] && !bullet1->bullet_active1)
         {
             bullet1->bullet_active1 = true;
@@ -322,7 +316,6 @@ void handle_input(bool *running, const Uint8 *keys, Entity *player, BULLET1 *bul
 
 void deplacement_player (Entity *player, float dt){
     player->x += player->vx * dt;
-
     if (player->x < 0)
         player->x = 0;
     if (player->x + player->w > SCREEN_WIDTH)
@@ -366,9 +359,7 @@ void deplacement_ennemi(ENEMY *enemy_list, bool *droite, bool *descente, float d
             *descente = true;
         }
         else 
-        {
             *descente = false;
-        }
     }
     else 
     { 
@@ -428,6 +419,12 @@ void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *b
     SDL_Color white = {255, 255, 255, 255};
     
     const char *vie = "vie.png";
+    const char *enemy_drawing = "enemy.png";
+    const char *enemy_resistant_drawing = "enemy_resistant.png";
+    const char *protection1 = "protection1.png";
+    const char *protection2 = "protection2.png";
+    const char *protection3 = "protection3.png";
+    const char *player_design = "player.png";
     
     if (menu){
         render_text(renderer, "MENU", SCREEN_WIDTH/2 - 65, 100, white, 40);
@@ -435,11 +432,7 @@ void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *b
     }
     else {
         if (!partie_finie){
-            SDL_Rect player_rect = {
-            (int)player->x, (int)player->y,
-            player->w, player->h};
-            SDL_SetRenderDrawColor(renderer, 184, 134, 11, 255);
-            SDL_RenderFillRect(renderer, &player_rect);
+            render_image(renderer, player_design, (int)player->x, (int)player->y, PLAYER_WIDTH, PLAYER_HEIGHT);
 
             for (int i = 0; i < player->vie; i++){
                 render_image(renderer, vie, SCREEN_WIDTH - (15 + i*30), 20, VIE_WIDTH, VIE_HEIGHT);
@@ -453,6 +446,7 @@ void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *b
                 SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
                 SDL_RenderFillRect(renderer, &bullet_rect);
             }
+
             if (bullet2->bullet_active2)
             {
                 SDL_Rect bullet_rect = {
@@ -461,6 +455,7 @@ void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *b
                 SDL_SetRenderDrawColor(renderer, 255, 235, 205, 255);
                 SDL_RenderFillRect(renderer, &bullet_rect);
             }
+
             if (tir_enemy_active)
             {
                 SDL_Rect tir_enemy_rect = {
@@ -471,53 +466,38 @@ void render(SDL_Renderer *renderer, Entity *player, BULLET1 *bullet1, BULLET2 *b
             }
             
             if (coeur_active)
-            {
                 render_image(renderer, coeur->path, coeur->x, coeur->y, COEUR_WIDTH, COEUR_HEIGHT);
-            }
 
             for (int i = 0; i < NUMBER_PROTECTION; i++){
                 if (protection_list[i].vie > 0){
-                    SDL_Rect PROTECTION = {
-                (int)protection_list[i].x, (int)protection_list[i].y,
-                    protection_list[i].w, protection_list[i].h};
                     if (protection_list[i].vie == 1)
-                        SDL_SetRenderDrawColor(renderer, 255, 192, 203, 255);
+                        render_image(renderer, protection1, protection_list[i].x, protection_list[i].y, PROTECTION_WIDTH, PROTECTION_HEIGHT);
                     else if (protection_list[i].vie == 2)
-                        SDL_SetRenderDrawColor(renderer, 205, 133, 63, 255);
+                        render_image(renderer, protection2, protection_list[i].x, protection_list[i].y, PROTECTION_WIDTH, PROTECTION_HEIGHT);
                     else 
-                        SDL_SetRenderDrawColor(renderer, 165, 42, 42, 255);
-                    SDL_RenderFillRect(renderer, &PROTECTION);
+                        render_image(renderer, protection3, protection_list[i].x, protection_list[i].y, PROTECTION_WIDTH, PROTECTION_HEIGHT);
                 }
             }
 
             for (int i = 0; i < NUMBER_ENEMY_X*NUMBER_ENEMY_Y; i++)
             {  
                 if (enemy_list[i].vie > 0){
-                    SDL_Rect ENEMY = {
-                (int)enemy_list[i].x, (int)enemy_list[i].y,
-                    enemy_list[i].w, enemy_list[i].h};
                     if (enemy_list[i].vie == 1)
-                        SDL_SetRenderDrawColor(renderer, 255, 50, 255, 255);
+                        render_image(renderer, enemy_drawing , enemy_list[i].x, enemy_list[i].y, ENEMY_WIDTH, ENEMY_HEIGHT);
                     else 
-                        SDL_SetRenderDrawColor(renderer, 255, 200, 255, 255);
-                    SDL_RenderFillRect(renderer, &ENEMY);
+                        render_image(renderer, enemy_resistant_drawing , enemy_list[i].x, enemy_list[i].y, ENEMY_WIDTH, ENEMY_HEIGHT);
                 }
             } 
         }
         
-
         if (partie_finie){
-            if (partie_gagnee){
+            if (partie_gagnee)
                 render_text(renderer, "Tu as gagne !", SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT/2 - 15, white, 28);
-            }
-            else{
-                render_text(renderer, "Tu as perdu !", SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT/2 - 15, white, 28);
-            }
             
-            
+            else
+                render_text(renderer, "Tu as perdu !", SCREEN_WIDTH/2 - 120, SCREEN_HEIGHT/2 - 15, white, 28);      
         }
     }
-
     SDL_RenderPresent(renderer);
 }
 
@@ -562,7 +542,6 @@ void render_text(SDL_Renderer *renderer, const char *text, int x, int y, SDL_Col
     SDL_Rect rect = {x, y, text_width, text_height};
     
     SDL_RenderCopy(renderer, texture, NULL, &rect);
-    
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
     TTF_CloseFont(font);
@@ -586,8 +565,7 @@ void render_image(SDL_Renderer *renderer, const char *image_path, int x, int y, 
     }
     
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(renderer, texture, NULL, &rect);
-    
+    SDL_RenderCopy(renderer, texture, NULL, &rect);   
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
